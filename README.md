@@ -43,5 +43,24 @@ openat(AT_FDCWD, "/opt/bingo/config.yaml", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No s
 Для этого я нашел в интернете готовый docker-compose.yaml, он будет в /local в ГитХабе, на данный момент изменять его не нужно.
 Запускаем через `docker compose up -d`, добавляем тестовые данные в БД `bingo prepare_db`.
 
+Пробуем запустить сервер
+```
+bingo run_server
+```
+
+Видимо ошибку с логами, делаем strace
+```
+strace bingo run_server
+# mkdir /opt/bongo/logs/
+# mkdir /opt/bongo/logs/6561f4ba98/
+# touch /opt/bongo/logs/6561f4ba98/main.log
+# chmod 777 /opt/bongo/logs/6561f4ba98/main.log
+```
+
+```
+ss -ltnp
+LISTEN    0    128    *:19225    *:*    users:(("bingo",pid=6849,fd=9))
+```
+
 ### Этап 2
 **Запуск бинарника**
