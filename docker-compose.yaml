@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  bingo:
+    container_name: bingo
+    image: d3adwolf/bingo:0.2
+    restart: always
+    ports:
+      - '19225:19225'
+    healthcheck:
+      test: timeout 10s bash -c ':> /dev/tcp/192.168.0.66/19225' || exit 1
+      start_period: 30s
+      retries: 2
+      timeout: 5s
+      interval: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    network_mode: "bridge"
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -d postgres
+      interval: 15s
+      timeout: 60s
+      retries: 3
+      start_period: 10s
+    network_mode: "bridge"
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - '80:8080'
+      - '443:4040'
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
+      interval: 10s
+      timeout: 10s
+      start_period: 160s
+      retries: 3
+    network_mode: "bridge"
+volumes:
+  postgres:
+    driver: local
