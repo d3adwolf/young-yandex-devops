@@ -8,25 +8,37 @@ services:
       - '19225:19225'
     healthcheck:
       test: timeout 10s bash -c ':> /dev/tcp/192.168.0.66/19225' || exit 1
-      start_period: 30s
-      retries: 2
-      timeout: 5s
-      interval: 30s
+      start_period: 15s
+      retries: 1
+      timeout: 4s
+      interval: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 1025M
     depends_on:
       postgres:
         condition: service_healthy
-    network_mode: "bridge"
+    network_mode: "host"
   postgres:
     container_name: postgres
     image: postgres
     restart: always
+    command: |
+        postgres
+          -c shared_preload_libraries=pg_stat_statements
+          -c pg_stat_statements.track=all
+          -c max_connections=200
+          -c shared_buffers=1024MB
     environment:
+      - PGUSER=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5432:5432'
     volumes:
       - postgres:/var/lib/postgresql/data
+      - ./custompostgresql.conf:/var/lib/postgresql/data/postgresql.conf
     healthcheck:
       test: pg_isready -d postgres
       interval: 15s
@@ -42,8 +54,8 @@ services:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=root
     ports:
-      - '80:8080'
-      - '443:4040'
+      - '5050:80'
+      - '443:443'
     healthcheck:
       test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
       interval: 10s
@@ -54,3 +66,4 @@ services:
 volumes:
   postgres:
     driver: local
+    
