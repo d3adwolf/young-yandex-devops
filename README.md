@@ -87,3 +87,7 @@ curl http://ip:19225
 xxd bingo
 ```
 `google_dns_is_not_http`<br><br>
+
+sudo iptables -t filter -A OUTPUT -d 8.8.8.8/32 -j REJECT
+netstat -anp | grep bingo
+tcp        0      1 172.25.251.86:42506     8.8.8.8:80              SYN_SENT    74648/bingo
