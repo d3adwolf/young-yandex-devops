@@ -2,8 +2,8 @@
 Итоговый проект Young Yandex по направлению DevOps 2023 года. 
 
 ### Этап 0
-**Изначальная инфраструктура**
-Домашний сервер Dell R510 с Proxmox VE 8.0.4
+**Изначальная инфраструктура**<br>
+Домашний сервер Dell R510 с [Proxmox VE 8.0.4](https://proxmox.foreverfunface.ru)
 ```
 Linux proxmox 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 GNU/Linux
 ```
@@ -11,6 +11,7 @@ Linux proxmox 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:
 ```
 Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 x86_64 x86_64 GNU/Linux
 ```
+Доступ в ресурсы сервера через обратный прокси [Nginx Proxy Manager](https://proxy.foreverfunface.ru)
 
 ### Этап 1
 **Изучение и настройка бинарника**
