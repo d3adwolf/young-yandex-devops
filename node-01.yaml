@@ -2,20 +2,22 @@ version: '3.8'
 services:
   bingo:
     container_name: bingo
-    image: d3adwolf/bingo:0.2
+    image: d3adwolf/bingo:0.4
     restart: always
     ports:
-      - '19225:19225'
+      - '80:19225'
     healthcheck:
-      test: timeout 10s bash -c ':> /dev/tcp/192.168.0.66/19225' || exit 1
+      test: ["CMD", "curl", "-s", "-f", "http://192.168.0.66:19225/ping"]
       start_period: 15s
       retries: 1
-      timeout: 4s
-      interval: 5s
+      timeout: 3s
+      interval: 4s
     deploy:
       resources:
         limits:
-          memory: 1025M
+          memory: 1024M
+    labels:
+      - "autoheal=true"
     depends_on:
       postgres:
         condition: service_healthy
@@ -24,12 +26,6 @@ services:
     container_name: postgres
     image: postgres
     restart: always
-    command: |
-        postgres
-          -c shared_preload_libraries=pg_stat_statements
-          -c pg_stat_statements.track=all
-          -c max_connections=200
-          -c shared_buffers=1024MB
     environment:
       - PGUSER=postgres
       - POSTGRES_USER=postgres
@@ -42,10 +38,10 @@ services:
     healthcheck:
       test: pg_isready -d postgres
       interval: 15s
-      timeout: 60s
+      timeout: 50s
       retries: 3
       start_period: 10s
-    network_mode: "bridge"
+    network_mode: "host"
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -63,7 +59,17 @@ services:
       start_period: 160s
       retries: 3
     network_mode: "bridge"
+  autoheal:
+      container_name: autoheal
+      image: willfarrell/autoheal
+      tty: true
+      restart: always
+      environment:
+        - AUTOHEAL_INTERVAL=3
+        - AUTOHEAL_START_PERIOD=20
+        - AUTOHEAL_DEFAULT_STOP_TIMEOUT=5
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
 volumes:
   postgres:
     driver: local
-    
