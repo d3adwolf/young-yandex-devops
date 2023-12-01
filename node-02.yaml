@@ -2,8 +2,11 @@ version: '3.8'
 services:
   bingo:
     container_name: bingo
-    image: d3adwolf/bingo:0.4
+    image: d3adwolf/bingo:0.6
     restart: always
+    environment:
+      - LANG=C.UTF-8
+      - TZ=Europe/Moscow
     ports:
       - '80:19225'
     healthcheck:
@@ -27,6 +30,8 @@ services:
     image: postgres
     restart: always
     environment:
+      - LANG=C.UTF-8
+      - TZ=Europe/Moscow
       - PGUSER=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -73,3 +78,4 @@ services:
 volumes:
   postgres:
     driver: local
+
