@@ -1,0 +1,75 @@
+version: '3.8'
+services:
+  bingo:
+    container_name: bingo
+    image: d3adwolf/bingo:0.4
+    restart: always
+    ports:
+      - '80:19225'
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://192.168.0.67:19225/ping"]
+      start_period: 15s
+      retries: 1
+      timeout: 3s
+      interval: 4s
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    labels:
+      - "autoheal=true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    network_mode: "host"
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment:
+      - PGUSER=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./custompostgresql.conf:/var/lib/postgresql/data/postgresql.conf
+    healthcheck:
+      test: pg_isready -d postgres
+      interval: 15s
+      timeout: 50s
+      retries: 3
+      start_period: 10s
+    network_mode: "host"
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - '5050:80'
+      - '443:443'
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
+      interval: 10s
+      timeout: 10s
+      start_period: 160s
+      retries: 3
+    network_mode: "bridge"
+  autoheal:
+      container_name: autoheal
+      image: willfarrell/autoheal
+      tty: true
+      restart: always
+      environment:
+        - AUTOHEAL_INTERVAL=3
+        - AUTOHEAL_START_PERIOD=20
+        - AUTOHEAL_DEFAULT_STOP_TIMEOUT=5
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+volumes:
+  postgres:
+    driver: local
