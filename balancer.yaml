@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  nginx:
+    container_name: balancer
+    image: nginx
+    environment:
+      - LANG=C.UTF-8
+      - TZ=Europe/Moscow
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    network_mode: "host"
