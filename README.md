@@ -88,6 +88,18 @@ xxd bingo
 ```
 `google_dns_is_not_http`<br><br>
 
+```
 sudo iptables -t filter -A OUTPUT -d 8.8.8.8/32 -j REJECT
+```
+```
 netstat -anp | grep bingo
 tcp        0      1 172.25.251.86:42506     8.8.8.8:80              SYN_SENT    74648/bingo
+```
+
+CREATE INDEX customers_id_indx ON public.customers (id);
+CREATE INDEX movies_id_indx ON public.movies (id DESC);
+CREATE INDEX movies_name_indx ON public.movies ("name");
+CREATE INDEX movies_year_indx ON public.movies ("year" DESC);
+CREATE INDEX sessions_id_indx ON public.sessions (id DESC);
+
+
