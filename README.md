@@ -9,11 +9,11 @@
 ### Этап 0
 **Изначальная инфраструктура:**<br>
 Домашний сервер Dell R510 с [Proxmox VE 8.0.4](https://proxmox.foreverfunface.ru)
-```
+```bash
 Linux proxmox 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 GNU/Linux
 ```
 Внутри LXC контейнер **yy-test** с ubuntu-23.04-standart_23.04-1_amd64
-```
+```bash
 Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 x86_64 x86_64 GNU/Linux
 ```
 Доступ в ресурсы сервера через обратный прокси [Nginx Proxy Manager](https://proxy.foreverfunface.ru).
@@ -21,11 +21,11 @@ Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:
 ### Этап 1
 **Изучение и настройка бинарника:**
 Скачиваем приложение (бинарник), основанный на [Cobra](https://github.com/spf13/cobra)
-```
+```bash
 wget https://storage.yandexcloud.net/final-homework/bingo
 ```
 Сделаем бинарник исполняемым в любой точке системы, будто мы его поставили через `apt`, создадим пользователя, чтобы соответствовать правильному подходу по ИБ, да и из под root-а он не запустится.
-```
+```bash
 mv bingo /bin/
 chmod 755 /bin/bingo
 adduser user
@@ -34,11 +34,11 @@ usermod -aG sudo user
 Для запуска сервера нужен конфиг и БД с данными.
 
 Смотрим расположение конфига
-```
+```bash
 strace bingo print_current_config
 openat(AT_FDCWD, "/opt/bingo/config.yaml", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 ```
-```
+```bash
 mkdir /opt/bingo/
 vi /opt/bingo/config.yaml
 ```
@@ -55,37 +55,77 @@ vi /opt/bingo/config.yaml
 **Запуск бинарника:**
 
 Пробуем запустить сервер
-```
+```bash
 bingo run_server
 ```
 
 Видим ошибку с логами, делаем strace
-```
+```bash
 strace bingo run_server
 ```
 Находим несуществующий путь и создаем папку
-```
+```bash
 mkdir -p /opt/bongo/logs/6561f4ba98/
 touch /opt/bongo/logs/6561f4ba98/main.log
 chmod 777 /opt/bongo/logs/6561f4ba98/main.log
 ```
 Пробуем
-```
+```bash
 bingo run_server
 ```
 Узнаем какой порт прослушивает Bingo после успешного его запуска
-```
+```bash
 ss -ltnp
 LISTEN    0    128    *:19225    *:*    users:(("bingo",pid=6849,fd=9))
 ```
 
 ### Этап 3
 **Упаковка сервера в контейнер:**
+Берем в основу Ubuntu, скачиваем в неё Bingo, и запускаем
+```bash
+vim Dockerfile
+```
+```Dockerfile
+FROM ubuntu
+
+WORKDIR /opt/bingo
+
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y wget telnet curl tzdata && \
+    apt autoremove -y && \
+    wget https://storage.yandexcloud.net/final-homework/bingo && \
+    mv bingo /bin/bingo && \
+    chmod 755 /bin/bingo && \
+    wget https://raw.githubusercontent.com/d3adwolf/young-yandex-public/main/config.yaml && \
+    adduser user --shell /bin/bash && \
+    usermod -aG sudo user && \
+    mkdir -p /opt/bongo/logs/6561f4ba98/ && \
+    touch /opt/bongo/logs/6561f4ba98/main.log && \
+    chmod 777 -R /opt/bongo/
+
+USER user
+
+CMD ["bingo", "run_server"]
+```
+Собираем build
+```bash
+docker build --no-cache -t <USER>/bingo:<TAG> .
+```
+Логинемся в Docker Hub
+```bash
+docker login
+```
+Пушим актуальную версию
+```bash
+docker push <USER>/bingo:<TAG>
+```
+Всё, рабочий образ лежит в [репозитории](https://hub.docker.com/repository/docker/d3adwolf/bingo/general) DockerHub'е.
 
 ### Разное
 **Нахождение мною всех кодов:**
 При любом успешном запуске сервера:
-```
+```bash
 bingo run_server
 ```
 ```
@@ -98,7 +138,7 @@ code:         yoohoo_server_launched
 ```
 <br><br>
 При запросе корневой страницы сайта (`/`):
-```
+```bash
 curl http://ip:19225
 ```
 ```
@@ -111,10 +151,10 @@ code:         index_page_is_awesome
 ```
 <br><br>
 Да, я пытался найти в исходниках пасхалку, советы, но нашел код, который можно получить, заблочив Google домен:
-```
+```bash
 xxd bingo
 ```
-```
+```bash
 0085baf0: 6978 2069 742e 0a48 6572 6527 7320 6120  ix it..Here's a 
 0085bb00: 7365 6372 6574 2063 6f64 6520 7468 6174  secret code that
 0085bb10: 2063 6f6e 6669 726d 7320 7468 6174 2079   confirms that y
@@ -130,12 +170,12 @@ xxd bingo
 0085bbb0: 2d2d 2d2d 2d0a 2020 2020 3c68 746d 6c3e  -----.    <html>
 ```
 Либо идём по правильному пути:
-```
+```bash
 netstat -anp | grep bingo
 tcp        0      1 172.25.251.86:42506     8.8.8.8:80              SYN_SENT    74648/bingo
 ```
 Эту команду выполняем вне контейнера, а в compose указываем сеть `host`, чтобы `iptables` хоста работал на сам контейнер:
-```
+```bash
 iptables -t filter -A OUTPUT -d 8.8.8.8/32 -j REJECT
 ```
 ```
@@ -149,17 +189,15 @@ code:         google_dns_is_not_http
 ```
 <br><br>
 
-
+**Оптимизация SQL-запросов:**
 CREATE INDEX customers_id_indx ON public.customers (id);
 CREATE INDEX movies_id_indx ON public.movies (id DESC);
 CREATE INDEX movies_name_indx ON public.movies ("name");
 CREATE INDEX movies_year_indx ON public.movies ("year" DESC);
 CREATE INDEX sessions_id_indx ON public.sessions (id DESC);
 
-SELECT indexname, tablename
-FROM pg_indexes;
-
-```
+**Оптимизация SQL-сервера:**
+```conf
 # DB Version: 16
 # OS Type: linux
 # DB Type: web
@@ -187,3 +225,7 @@ max_parallel_maintenance_workers = 4
 ```
 
 https://pgtune.leopard.in.ua/
+
+**Самопроверка**
+SELECT indexname, tablename
+FROM pg_indexes;
