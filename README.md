@@ -18,6 +18,8 @@ Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:
 ```
 Доступ в ресурсы сервера через обратный прокси [Nginx Proxy Manager](https://proxy.foreverfunface.ru).
 
+Сайт ещё жив на [youngyandex.ru](https://youngyandex.ru/), текущий [конфиг Bingo](https://youngyandex.ru/config), админка [PostgreSQL]().
+
 ### Этап 1
 **Изучение и настройка бинарника:**
 Скачиваем приложение (бинарник), основанный на [Cobra](https://github.com/spf13/cobra)
@@ -43,6 +45,7 @@ mkdir /opt/bingo/
 vi /opt/bingo/config.yaml
 ```
 Указываем свою почту: `f3.d3ad.wolf@yandex.ru`, а актуальный конфиг я загрузил в [публичный репозиторий](https://github.com/d3adwolf/young-yandex-public).
+- [X] В конфигурации — правильный email
 
 Для удобства запустим БД сразу в Docker, установим его по инструкции:<br>
 [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
@@ -136,6 +139,7 @@ Here's a secret code that confirms that you did it.
 code:         yoohoo_server_launched
 --------------------------------------------------
 ```
+- [X] Запуск приложения
 <br><br>
 При запросе корневой страницы сайта (`/`):
 ```bash
@@ -149,12 +153,13 @@ Get on with it. You can do it, you'll do it.
 code:         index_page_is_awesome
 --------------------------------------------------
 ```
+- [X] Поход в корень
 <br><br>
 Да, я пытался найти в исходниках пасхалку, советы, но нашел код, который можно получить, заблочив Google домен:
 ```bash
 xxd bingo
 ```
-```bash
+```
 0085baf0: 6978 2069 742e 0a48 6572 6527 7320 6120  ix it..Here's a 
 0085bb00: 7365 6372 6574 2063 6f64 6520 7468 6174  secret code that
 0085bb10: 2063 6f6e 6669 726d 7320 7468 6174 2079   confirms that y
@@ -178,6 +183,7 @@ tcp        0      1 172.25.251.86:42506     8.8.8.8:80              SYN_SENT    
 ```bash
 iptables -t filter -A OUTPUT -d 8.8.8.8/32 -j REJECT
 ```
+- [X] Гугл забанен 😄
 ```
 Congratulations.
 You were able to figure out why
@@ -187,14 +193,19 @@ Here's a secret code that confirms that you did it.
 code:         google_dns_is_not_http
 --------------------------------------------------
 ```
+- [X] Ускорен старт
 <br><br>
 
 **Оптимизация SQL-запросов:**
+Построим индексы для сложного запроса на /api/session
+```sql
 CREATE INDEX customers_id_indx ON public.customers (id);
 CREATE INDEX movies_id_indx ON public.movies (id DESC);
 CREATE INDEX movies_name_indx ON public.movies ("name");
 CREATE INDEX movies_year_indx ON public.movies ("year" DESC);
 CREATE INDEX sessions_id_indx ON public.sessions (id DESC);
+```
+- [X] GET /api/session/{id} работает корректно
 
 **Оптимизация SQL-сервера:**
 ```conf
