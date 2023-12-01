@@ -4,7 +4,7 @@ WORKDIR /opt/bingo
 
 RUN apt update && \
     apt upgrade -y && \
-    apt install -y wget telnet && \
+    apt install -y wget telnet curl tzdata && \
     apt autoremove -y && \
     wget https://storage.yandexcloud.net/final-homework/bingo && \
     mv bingo /bin/bingo && \
