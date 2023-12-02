@@ -3,7 +3,6 @@
 
 ### Предисловие
 Из-за работы и учебы пришлось уделить проекту только 4 дня, но, зато все 4 дня сидел non-stop за работой. Хочется уже спать, кушать, отдыхать, как и всем в общем.
-
 Время 00:02, убрал руки от контейнеров в 23:55, пойду загружу актуальные конфиги.
 
 ### Этап 0
@@ -18,7 +17,7 @@ Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:
 ```
 Доступ в ресурсы сервера через обратный прокси [Nginx Proxy Manager](https://proxy.foreverfunface.ru).
 
-Сайт ещё жив на [youngyandex.ru](https://youngyandex.ru/), текущий [конфиг Bingo](https://youngyandex.ru/config), админка [PostgreSQL]().
+Сайт ещё жив на [youngyandex.ru](https://youngyandex.ru/), текущий [конфиг Bingo](https://youngyandex.ru/config), админка [PostgreSQL](https://pgadmin.youngyandex.ru/).
 
 ### Этап 1
 **Изучение и настройка бинарника:**
@@ -26,15 +25,15 @@ Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:
 ```bash
 wget https://storage.yandexcloud.net/final-homework/bingo
 ```
-Сделаем бинарник исполняемым в любой точке системы, будто мы его поставили через `apt`, создадим пользователя, чтобы соответствовать правильному подходу по ИБ, да и из под root-а он не запустится.
+Сделаем бинарник исполняемым в любой точке системы, будто мы его поставили через `apt`, создадим пользователя, чтобы соответствовать правильному подходу по ИБ, да и из под root-а он не запустится
 ```bash
 mv bingo /bin/
 chmod 755 /bin/bingo
 adduser user
 usermod -aG sudo user
 ```
-Для запуска сервера нужен конфиг и БД с данными.
-
+Для запуска сервера нужен конфиг и БД с данными
+<br><br>
 Смотрим расположение конфига
 ```bash
 strace bingo print_current_config
@@ -53,13 +52,29 @@ vi /opt/bingo/config.yaml
 - [X] В конфигурации — правильный email
 
 Для удобства запустим БД сразу в Docker, установим его по инструкции:<br>
-[Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
+[Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/)
 
-Теперь ставим PostreSQL:
-Для этого я нашел в интернете готовый docker-compose.yaml для PostreSQL, на тот момент изменять его не нужно.
-<br>
-Изменения в custompostgresql.conf, по сравнению с дефолтным:
-```conf
+**Теперь ставим PostreSQL:**
+Для этого я нашел в интернете готовый docker-compose.yaml для PostreSQL, на тот момент изменять его не нужно, часть yaml-файла примерно такая
+```yaml
+postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./custompostgresql.conf:/var/lib/postgresql/data/postgresql.conf
+volumes:
+  postgres:
+    driver: local
+```
+Изменения в custompostgresql.conf, по сравнению с дефолтным
+```bash
 listen_addresses = '*'
 log_timezone = 'Europe/Moscow'
 ```
@@ -81,7 +96,7 @@ mkdir -p /opt/bongo/logs/6561f4ba98/
 touch /opt/bongo/logs/6561f4ba98/main.log
 chmod 777 /opt/bongo/logs/6561f4ba98/main.log
 ```
-Пробуем
+Пробуем запустить
 ```bash
 bingo run_server
 ```
@@ -91,6 +106,10 @@ bingo run_server
 ss -ltnp
 LISTEN    0    128    *:19225    *:*    users:(("bingo",pid=6849,fd=9))
 ```
+Сделаем тест текущего приложения
+- [X] GET /api/movie работает корректно
+- [X] GET /api/customer работает корректно
+- [X] GET /api/session работает корректно
 
 ### Этап 3
 **Упаковка сервера в контейнер:**
@@ -134,7 +153,7 @@ docker login
 ```bash
 docker push <USER>/bingo:<TAG>
 ```
-Всё, рабочий образ лежит в [репозитории](https://hub.docker.com/repository/docker/d3adwolf/bingo/general) DockerHub'е.
+Всё, рабочий образ лежит в [репозитории](https://hub.docker.com/repository/docker/d3adwolf/bingo/general) DockerHub'а
 
 ### Этап 4
 **Упаковка связанной инфраструктуры в docker-compose:**
@@ -153,11 +172,17 @@ cp node-01.yaml node-02.yaml
 ```
 Запускаем docker-compose на первой, и потом на второй ноде
 ```bash
-docker compose -f node-01.yaml up -d
+docker compose -f node-<NUMBER>.yaml up -d
 ```
-Выключать инфру через
+Выключать контейнеры через
 ```bash
-docker compose -f node-01.yaml down
+docker compose -f node-<NUMBER>.yaml down
+```
+В каждом docker-compose, где есть поддержка `timezone` и `locale`, укажем наш регион, для правильного времени в логах
+```yaml
+environment:
+      - LANG=C.UTF-8
+      - TZ=Europe/Moscow
 ```
 
 ### Этап 4
@@ -191,6 +216,44 @@ location / {
 - [X] Отказоустойчивость 1
 - [X] Отказоустойчивость 2
 - [X] Отказоустойчивость 3
+
+### Этап 5
+**Настройка домена и HTTPS:**
+1. Оформим домен на [REG.ru](https://www.reg.ru/), пропишем там A, AAAA записи.
+2. 	a. Лично я зайду на свой продовый контейнер [Nginx Proxy Manager](https://proxy.foreverfunface.ru/) и добавлю туда домен с REG.ru, там же подключу SSL сертификаты через Let's Encrypt
+	b. Либо настроить в Nginx SSL через CertBot
+- [X] Есть https
+
+### Финальный этап
+**Запуск полной инфраструктуры:**
+<br>Структура файлов на каждой ноде
+```bash
+user@192.168.0.66
+|-- custompostgresql.conf
+`-- node-01.yaml
+```
+```bash
+user@192.168.0.67
+|-- custompostgresql.conf
+`-- node-02.yaml
+```
+```bash
+user@192.168.0.68
+|-- nginx.conf
+`-- nginx.yaml
+```
+Запуск контейнеров через
+```bash
+dokcer compose -f <NAME>.yaml up -d
+```
+Скачать необходимые файлы можно с этого репозитория через
+```
+wget <URL>
+```
+или
+```
+git pull
+```
 
 ### Разное
 **Нахождение мною всех кодов:**
@@ -310,3 +373,64 @@ max_parallel_workers = 16
 max_parallel_maintenance_workers = 4
 ```
 Пока результатов в тесте это не принесло, нужно смотреть скоррость выполнения SQL-скриптов, но это уже после дедлайн, на момент дедлайна, тестировал на обычном конфиге без тюна
+
+**Разборка docker-compose решений:**
+```yaml
+healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://192.168.0.67:19225/ping"]
+      start_period: 15s
+      retries: 1
+      timeout: 3s
+      interval: 4s
+```
+Не каждое падение приложения вызывает `exit 1`, а вот `/ping` в случае проблем пишет, вместо `pong`, `I feel die`, именно поэтому лучше чекать `/ping`
+<br>
+```yaml
+resources:
+        limits:
+          memory: 1024M
+```
+Я видел, что иногда выполняется переполнение памяти, особенно, без nginx-сервера, поэтому поставил лимит, после которого контейнер уходит в ребут
+<br>
+```yaml
+environment:
+	- PGUSER=postgres
+network_mode: "host"
+```
+Чтобы исправить `psql: FATAL:  role "root" does not exist`, и БД была доступа снаружи
+<br>
+```yaml
+autoheal:
+      container_name: autoheal
+      image: willfarrell/autoheal
+```
+Чтобы контейнеры перезапускались после `Unhealthy`, ибо это фича Docker Swarm'а
+<br>
+**Задачи под звездочкой:**
+```bash
+curl http://youngyandex.ru
+```
+```
+Hi. Accept my congratulations. You were able to launch this app...
+```
+- [X] HTTP без редиректа на HTTPS - по идее работает, но мой Nginx Proxy Manager не радует нормальной работой
+
+
+**Чего не было сделано и почему:**
+- [ ] POST /api/session работает корректно - перестал срабатывать за час до дедлайна, ошибка была в конфигах Nginx'а
+- [ ] Есть кеширование для GET /long_dummy - вероятно неправильно настроен Nginx конфиг, либо не хватает пару секунд для авто-тестирования
+- [ ] HTTP3 - не работает в Nginx Proxy Manager, надо было сразу настраивать Nginx
+- [ ] Мониторинг RPS и ошибок - в проде крутиться мониторинг LXC контейнеров через [Grafana](https://grafana.foreverfunface.ru/), отдельный на Prometheus не успел
+- [ ] Автоматизировать развёртывание - идеальное видение:
+      a. Развертывание LXC в Proxmox через Terraform
+      b. Первоначальная настройка LXC через cloud-init
+      c. GitLab CI/CD для билда Docker Image
+      d. Мониторинг LXC, Docker, Nginx через node_exporter + Prometheus + Grafana
+      e. Скачивание Bash скрипта через Wget, который выполнит Terraform и Docker Compose
+      f. Автоматическая настройка нод по SSH через Ansible
+
+**Лучший вариант тестов:**
+
+
+**Завершил дедлайн с:**
+
