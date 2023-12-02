@@ -431,9 +431,6 @@ Hi. Accept my congratulations. You were able to launch this app...
 <br>      f. Автоматическая настройка нод по SSH через Ansible
 <br><br>
 
-**Лучший вариант тестов:**<br>
-
-
-<br><br>
-**Завершил дедлайн на:**<br>
-
+**Завершил дедлайн на:**<br><br>
+<img src="https://i.imgur.com/WS2cpGn.png" width="500"><br><br>
+Получал ли я `POST /api/session работает корректно` и `Есть кеширование для GET /long_dummy`? - да. Успел ли я к дедлайну? - нет.
