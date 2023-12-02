@@ -40,6 +40,11 @@ usermod -aG sudo user
 strace bingo print_current_config
 openat(AT_FDCWD, "/opt/bingo/config.yaml", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 ```
+Для начала узнаем стандартный конфиг
+```bash
+bingo print_default_config
+```
+Создадим необходимую папку и конфиг
 ```bash
 mkdir /opt/bingo/
 vi /opt/bingo/config.yaml
@@ -51,17 +56,15 @@ vi /opt/bingo/config.yaml
 [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
 
 Теперь ставим PostreSQL:
-Для этого я нашел в интернете готовый docker-compose.yaml, на данный момент изменять его не нужно.
+Для этого я нашел в интернете готовый docker-compose.yaml для PostreSQL, на тот момент изменять его не нужно.
 Запускаем через `docker compose up -d`, добавляем тестовые данные в БД `bingo prepare_db`.
 
 ### Этап 2
 **Запуск бинарника:**
-
 Пробуем запустить сервер
 ```bash
 bingo run_server
 ```
-
 Видим ошибку с логами, делаем strace
 ```bash
 strace bingo run_server
@@ -85,10 +88,11 @@ LISTEN    0    128    *:19225    *:*    users:(("bingo",pid=6849,fd=9))
 
 ### Этап 3
 **Упаковка сервера в контейнер:**
-Берем в основу Ubuntu, скачиваем в неё Bingo, и запускаем
+Создадим Dockerfile
 ```bash
 vim Dockerfile
 ```
+Берем в основу Ubuntu, скачиваем в неё Bingo, и запускаем
 ```Dockerfile
 FROM ubuntu
 
