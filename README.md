@@ -128,34 +128,46 @@ docker push <USER>/bingo:<TAG>
 
 ### Этап 4
 **Упаковка связанной инфраструктуры в docker-compose:**
+Создадим основной docker-compose
 ```bash
 vim docker-compose.yaml
 ```
+Запускать docker-compose можно командой
 ```bash
 docker compose up -d
 ```
+Но у нас две ноды, поэтому делаем два разных файла
 ```bash
 mv docker-compose.yaml node-01.yaml
 cp node-01.yaml node-02.yaml
 ```
+Запускаем docker-compose на первой, и потом на второй ноде
 ```bash
 docker compose -f node-01.yaml up -d
 ```
+Выключать инфру через
 ```bash
 docker compose -f node-01.yaml down
 ```
 
 ### Этап 4
 **Настройка балансера:**
+Создадим docker-compose для Nginx ноды
 ```bash
 vim balancer.yaml
 ```
+Создадим конфиг для Nginx
+```bash
+vim nginx.conf
+```
+Здесь мы указываем две ноды для балансера
 ```nginx
 upstream backend {
         server 192.168.0.66:19225;
         server 192.168.0.67:19225;
     }
 ```
+Указываем виртуальный сайт для трафика, в нем как раз работает балансер, не забываем про proxy_next_upstream, он перекинет трафик на другую ноду, если одна нода упадёт
 ```nginx
 location / {
             proxy_pass http://backend;
