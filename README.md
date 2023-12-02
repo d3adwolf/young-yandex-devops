@@ -76,6 +76,7 @@ chmod 777 /opt/bongo/logs/6561f4ba98/main.log
 ```bash
 bingo run_server
 ```
+- [X] Запуск приложения
 Узнаем какой порт прослушивает Bingo после успешного его запуска
 ```bash
 ss -ltnp
@@ -183,7 +184,6 @@ Here's a secret code that confirms that you did it.
 code:         yoohoo_server_launched
 --------------------------------------------------
 ```
-- [X] Запуск приложения
 <br><br>
 При запросе корневой страницы сайта (`/`):
 ```bash
