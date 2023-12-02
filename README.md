@@ -125,6 +125,50 @@ docker push <USER>/bingo:<TAG>
 ```
 Всё, рабочий образ лежит в [репозитории](https://hub.docker.com/repository/docker/d3adwolf/bingo/general) DockerHub'е.
 
+### Этап 4
+**Упаковка связанной инфраструктуры в docker-compose:**
+```bash
+vim docker-compose.yaml
+```
+```bash
+docker compose up -d
+```
+```bash
+mv docker-compose.yaml node-01.yaml
+cp node-01.yaml node-02.yaml
+```
+```bash
+docker compose -f node-01.yaml up -d
+```
+```bash
+docker compose -f node-01.yaml down
+```
+
+### Этап 4
+**Настройка балансера:**
+```bash
+vim balancer.yaml
+```
+```nginx
+upstream backend {
+        server 192.168.0.66:19225;
+        server 192.168.0.67:19225;
+    }
+```
+```nginx
+location / {
+            proxy_pass http://backend;
+	    proxy_next_upstream error timeout http_502 http_504;
+        }
+```
+- [X] GET /db_dummy соотвествует SLA
+- [X] GET /api/movie/{id} работает корректно
+- [X] GET /api/customer/{id} работает корректно
+- [X] GET /api/session/{id} работает корректно
+- [X] Отказоустойчивость 1
+- [X] Отказоустойчивость 2
+- [X] Отказоустойчивость 3
+
 ### Разное
 **Нахождение мною всех кодов:**
 При любом успешном запуске сервера:
@@ -206,8 +250,13 @@ CREATE INDEX movies_year_indx ON public.movies ("year" DESC);
 CREATE INDEX sessions_id_indx ON public.sessions (id DESC);
 ```
 - [X] GET /api/session/{id} работает корректно
+Проверим на всякий новые индексы
+```sql
+SELECT indexname, tablename FROM pg_indexes;
+```
 
 **Оптимизация SQL-сервера:**
+Рекомендуемый конфиг с [PGtune](https://pgtune.leopard.in.ua/) для моего железа:
 ```conf
 # DB Version: 16
 # OS Type: linux
@@ -235,8 +284,8 @@ max_parallel_workers = 16
 max_parallel_maintenance_workers = 4
 ```
 
-https://pgtune.leopard.in.ua/
-
-**Самопроверка**
-SELECT indexname, tablename
-FROM pg_indexes;
+Изменения в custompostgresql.conf, по сравнению с дефолтным:
+```conf
+listen_addresses = '*'
+log_timezone = 'Europe/Moscow'
+```
