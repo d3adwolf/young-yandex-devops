@@ -57,6 +57,12 @@ vi /opt/bingo/config.yaml
 
 Теперь ставим PostreSQL:
 Для этого я нашел в интернете готовый docker-compose.yaml для PostreSQL, на тот момент изменять его не нужно.
+<br>
+Изменения в custompostgresql.conf, по сравнению с дефолтным:
+```conf
+listen_addresses = '*'
+log_timezone = 'Europe/Moscow'
+```
 Запускаем через `docker compose up -d`, добавляем тестовые данные в БД `bingo prepare_db`.
 
 ### Этап 2
@@ -257,6 +263,10 @@ code:         google_dns_is_not_http
 <br><br>
 
 **Оптимизация SQL-запросов:**
+Воспользоваться можно, как и SQL-клиентами, так и [pgadmin4](https://pgadmin.youngyandex.ru/)
+Логин: `admin@admin.com`
+Пароль: `root`
+
 Построим индексы для сложного запроса на /api/session
 ```sql
 CREATE INDEX customers_id_indx ON public.customers (id);
@@ -272,7 +282,7 @@ SELECT indexname, tablename FROM pg_indexes;
 ```
 
 **Оптимизация SQL-сервера:**
-Рекомендуемый конфиг с [PGtune](https://pgtune.leopard.in.ua/) для моего железа:
+Рекомендуемый конфиг с [PGtune](https://pgtune.leopard.in.ua/) для конкретно моих LXC контейнеров
 ```conf
 # DB Version: 16
 # OS Type: linux
@@ -299,9 +309,4 @@ max_parallel_workers_per_gather = 4
 max_parallel_workers = 16
 max_parallel_maintenance_workers = 4
 ```
-
-Изменения в custompostgresql.conf, по сравнению с дефолтным:
-```conf
-listen_addresses = '*'
-log_timezone = 'Europe/Moscow'
-```
+Пока результатов в тесте это не принесло, нужно смотреть скоррость выполнения SQL-скриптов, но это уже после дедлайн, на момент дедлайна, тестировал на обычном конфиге без тюна
