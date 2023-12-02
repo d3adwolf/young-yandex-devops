@@ -2,9 +2,9 @@
 Итоговый проект Young Yandex по направлению DevOps 2023 года. 
 <br><br>
 ### Предисловие
-Из-за работы и учебы пришлось уделить проекту только 4 дня, но, зато все 4 дня сидел non-stop за работой. Хочется уже спать, кушать, отдыхать, как и всем в общем.
+> [!IMPORTANT]\
+> Из-за работы и учебы пришлось уделить проекту только 4 дня, но, зато все 4 дня сидел non-stop за работой. Хочется уже спать, кушать, отдыхать, как и всем в общем.
 Время 00:02, убрал руки от контейнеров в 23:55, пойду загружу актуальные конфиги.
-<br><br>
 ### Этап 0
 **Изначальная инфраструктура:**<br>
 Домашний сервер Dell R510 с [Proxmox VE 8.0.4](https://proxmox.foreverfunface.ru)
@@ -15,10 +15,9 @@ Linux proxmox 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:
 ```bash
 Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 x86_64 x86_64 GNU/Linux
 ```
-Доступ в ресурсы сервера через обратный прокси [Nginx Proxy Manager](https://proxy.foreverfunface.ru).
-<br><br>
-Сайт ещё жив на [youngyandex.ru](https://youngyandex.ru/), текущий [конфиг Bingo](https://youngyandex.ru/config), админка [PostgreSQL](https://pgadmin.youngyandex.ru/).
-<br><br>
+Доступ к сайтам сервера идет через обратный прокси [Nginx Proxy Manager](https://proxy.foreverfunface.ru)
+> [!NOTE]\
+> Сайт ещё жив на [youngyandex.ru](https://youngyandex.ru/), текущий [конфиг Bingo](https://youngyandex.ru/config), админка [PostgreSQL](https://pgadmin.youngyandex.ru/)
 ### Этап 1
 **Изучение и настройка бинарника:**<br>
 Скачиваем приложение (бинарник), основанный на [Cobra](https://github.com/spf13/cobra)
