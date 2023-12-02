@@ -71,7 +71,7 @@ volumes:
   postgres:
     driver: local
 ```
-Изменения в custompostgresql.conf, по сравнению с дефолтным
+Изменения в custompostgresql.conf по сравнению с дефолтным
 ```bash
 listen_addresses = '*'
 log_timezone = 'Europe/Moscow'
@@ -98,7 +98,7 @@ chmod 777 /opt/bongo/logs/6561f4ba98/main.log
 ```bash
 bingo run_server
 ```
-- [X] Запуск приложения
+- [X] Запуск приложения<br>
 Узнаем какой порт прослушивает Bingo после успешного его запуска
 ```bash
 ss -ltnp
@@ -115,7 +115,7 @@ LISTEN    0    128    *:19225    *:*    users:(("bingo",pid=6849,fd=9))
 ```bash
 vim Dockerfile
 ```
-Берем в основу Ubuntu, скачиваем в неё Bingo, и запускаем
+Берем в основу Ubuntu, скачиваем в неё Bingo и запускаем
 ```Dockerfile
 FROM ubuntu
 
@@ -168,7 +168,7 @@ docker compose up -d
 mv docker-compose.yaml node-01.yaml
 cp node-01.yaml node-02.yaml
 ```
-Запускаем docker-compose на первой, и потом на второй ноде
+Запускаем docker-compose на первой и потом на второй ноде
 ```bash
 docker compose -f node-<NUMBER>.yaml up -d
 ```
@@ -176,7 +176,7 @@ docker compose -f node-<NUMBER>.yaml up -d
 ```bash
 docker compose -f node-<NUMBER>.yaml down
 ```
-В каждом docker-compose, где есть поддержка `timezone` и `locale`, укажем наш регион, для правильного времени в логах
+В каждом docker-compose, где есть поддержка `timezone` и `locale`, укажем наш регион для правильного времени в логах
 ```yaml
 environment:
       - LANG=C.UTF-8
@@ -325,8 +325,8 @@ code:         google_dns_is_not_http
 - [X] Ускорен старт
 <br><br>
 **Оптимизация SQL-запросов:**<br>
-Воспользоваться можно, как и SQL-клиентами, так и [pgadmin4](https://pgadmin.youngyandex.ru/)
-Логин: `admin@admin.com`
+Воспользоваться можно как и SQL-клиентами, так и [pgadmin4](https://pgadmin.youngyandex.ru/)<br>
+Логин: `admin@admin.com`<br>
 Пароль: `root`
 
 Построим индексы для сложного запроса на /api/session
@@ -337,7 +337,7 @@ CREATE INDEX movies_name_indx ON public.movies ("name");
 CREATE INDEX movies_year_indx ON public.movies ("year" DESC);
 CREATE INDEX sessions_id_indx ON public.sessions (id DESC);
 ```
-- [X] GET /api/session/{id} работает корректно
+- [X] GET /api/session/{id} работает корректно<br>
 Проверим на всякий новые индексы
 ```sql
 SELECT indexname, tablename FROM pg_indexes;
@@ -372,7 +372,7 @@ max_parallel_workers_per_gather = 4
 max_parallel_workers = 16
 max_parallel_maintenance_workers = 4
 ```
-Пока результатов в тесте это не принесло, нужно смотреть скоррость выполнения SQL-скриптов, но это уже после дедлайн, на момент дедлайна, тестировал на обычном конфиге без тюна
+Пока результатов в тесте это не принесло, нужно смотреть скорость выполнения SQL-скриптов, но это уже после дедлайн, а на момент дедлайна тестировал на обычном конфиге без тюна
 <br><br>
 **Разборка docker-compose решений:**<br>
 ```yaml
@@ -383,14 +383,14 @@ healthcheck:
       timeout: 3s
       interval: 4s
 ```
-Не каждое падение приложения вызывает `exit 1`, а вот `/ping` в случае проблем пишет, вместо `pong`, `I feel die`, именно поэтому лучше чекать `/ping`
+Не каждое падение приложения вызывает `exit 1`, а вот `/ping` в случае проблем пишет `I feel die` вместо `pong`, именно поэтому лучше чекать `/ping`
 <br>
 ```yaml
 resources:
       limits:
         memory: 1024M
 ```
-Я видел, что иногда выполняется переполнение памяти, особенно, без nginx-сервера, поэтому поставил лимит, после которого контейнер уходит в ребут
+Я видел, что иногда выполняется переполнение памяти, особенно без nginx-сервера, поэтому поставил лимит, после которого контейнер уходит в ребут
 <br>
 ```yaml
 environment:
@@ -420,7 +420,7 @@ Hi. Accept my congratulations. You were able to launch this app...
 - [ ] POST /api/session работает корректно - перестал срабатывать за час до дедлайна, ошибка была `proxy_cache_methods GET;` в `nginx.conf`
 - [ ] Есть кеширование для GET /long_dummy - вероятно неправильно настроен Nginx конфиг, либо не хватает пару секунд для авто-тестирования
 - [ ] HTTP3 - не работает в Nginx Proxy Manager, надо было сразу настраивать Nginx
-- [ ] Мониторинг RPS и ошибок - в проде крутиться мониторинг LXC контейнеров через [Grafana](https://grafana.foreverfunface.ru/), отдельный на Prometheus не успел
+- [ ] Мониторинг RPS и ошибок - в проде крутится мониторинг LXC контейнеров через [Grafana](https://grafana.foreverfunface.ru/), отдельный на Prometheus не успел
 - [ ] Автоматизировать развёртывание - идеальное видение:
 <br>      a. Развертывание LXC в Proxmox через Terraform
 <br>      b. Первоначальная настройка LXC через cloud-init
