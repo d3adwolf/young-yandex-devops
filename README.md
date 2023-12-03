@@ -218,8 +218,8 @@ location / {
 <br><br>
 ### Этап 6
 **Настройка домена и HTTPS:**<br>
-1. Оформим домен на [REG.ru](https://www.reg.ru/), пропишем там A, AAAA записи.
-2. 	a. Лично я зайду на свой продовый контейнер [Nginx Proxy Manager](https://proxy.foreverfunface.ru/) и добавлю туда домен с REG.ru, там же подключу SSL сертификаты через Let's Encrypt
+1. Оформим домен на [REG.ru](https://www.reg.ru/), пропишем там `A` и `AAAA` записи
+2. 	a. Я зайду на свой продовый контейнер [Nginx Proxy Manager](https://proxy.foreverfunface.ru/) и добавлю туда домен с REG.ru, там же подключу SSL сертификаты через Let's Encrypt<br>
 	b. Либо настроить в Nginx SSL через CertBot
 - [X] Есть https
 <br><br>
@@ -251,7 +251,7 @@ wget <URL>
 ```
 или
 ```
-git pull
+git clone
 ```
 Правильнее будет вариант с Git'ом
 <br><br>
