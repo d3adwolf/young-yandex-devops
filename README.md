@@ -413,7 +413,7 @@ curl http://youngyandex.ru
 ```
 Hi. Accept my congratulations. You were able to launch this app...
 ```
-- [X] HTTP без редиректа на HTTPS - по идее работает, но мой Nginx Proxy Manager не радует нормальной работой
+- [X] HTTP без редиректа на HTTPS - по идее работает, но [Nginx Proxy Manager](https://proxy.foreverfunface.ru/) не радует стабильной работой
 <br>
 
 **Чего не было сделано и почему:**<br>
