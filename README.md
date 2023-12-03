@@ -47,7 +47,7 @@ bingo print_default_config
 mkdir /opt/bingo/
 vi /opt/bingo/config.yaml
 ```
-Указываем свою почту: `f3.d3ad.wolf@yandex.ru`, а актуальный конфиг я загрузил в [публичный репозиторий](https://github.com/d3adwolf/young-yandex-public).
+Указываем свою почту: `f3.d3ad.wolf@yandex.ru`, а актуальный конфиг я загрузил в [публичный репозиторий](https://github.com/d3adwolf/young-yandex-public)
 - [X] В конфигурации — правильный email<br><br>
 
 **Теперь ставим PostreSQL:**<br>
