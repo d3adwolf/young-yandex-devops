@@ -419,8 +419,8 @@ Hi. Accept my congratulations. You were able to launch this app...
 **Чего не было сделано и почему:**<br>
 - [ ] POST /api/session работает корректно - перестал срабатывать за час до дедлайна, вероятно ошибка в `nginx.conf`
 - [ ] Есть кеширование для GET /long_dummy - вероятно ошибка в `nginx.conf`
-- [ ] HTTP3 - не работает в Nginx Proxy Manager, надо было сразу настраивать Nginx
-- [ ] Мониторинг RPS и ошибок - в проде крутится мониторинг LXC контейнеров через [Grafana](https://grafana.foreverfunface.ru/), отдельный на Prometheus не успел
+- [ ] HTTP3 - не работает в [Nginx Proxy Manager](https://proxy.foreverfunface.ru), надо было сразу настраивать Nginx
+- [ ] Мониторинг RPS и ошибок - есть мониторинг LXC контейнеров через [Grafana](https://grafana.foreverfunface.ru/), но отдельный на Nginx + PostgreSQL не успел
 - [ ] Автоматизировать развёртывание - идеальное видение:
 <br>      a. Развертывание LXC в Proxmox через Terraform
 <br>      b. Первоначальная настройка LXC через cloud-init
