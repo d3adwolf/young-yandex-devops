@@ -151,7 +151,7 @@ docker login
 ```bash
 docker push <USER>/bingo:<TAG>
 ```
-Всё, рабочий образ лежит в [репозитории](https://hub.docker.com/repository/docker/d3adwolf/bingo/general) DockerHub'а
+Всё, рабочий образ лежит в [репозитории](https://hub.docker.com/r/d3adwolf/bingo) DockerHub'а
 <br><br>
 ### Этап 4
 **Упаковка связанной инфраструктуры в docker-compose:**<br>
