@@ -417,8 +417,8 @@ Hi. Accept my congratulations. You were able to launch this app...
 <br>
 
 **Чего не было сделано и почему:**<br>
-- [ ] POST /api/session работает корректно - перестал срабатывать за час до дедлайна, ошибка была `proxy_cache_methods GET;` в `nginx.conf`
-- [ ] Есть кеширование для GET /long_dummy - вероятно неправильно настроен Nginx конфиг, либо не хватает пару секунд для авто-тестирования
+- [ ] POST /api/session работает корректно - перестал срабатывать за час до дедлайна, вероятно ошибка в `nginx.conf`
+- [ ] Есть кеширование для GET /long_dummy - вероятно ошибка в `nginx.conf`
 - [ ] HTTP3 - не работает в Nginx Proxy Manager, надо было сразу настраивать Nginx
 - [ ] Мониторинг RPS и ошибок - в проде крутится мониторинг LXC контейнеров через [Grafana](https://grafana.foreverfunface.ru/), отдельный на Prometheus не успел
 - [ ] Автоматизировать развёртывание - идеальное видение:
@@ -432,3 +432,7 @@ Hi. Accept my congratulations. You were able to launch this app...
 
 **Завершил дедлайн на:**<br><br>
 <img src="https://i.imgur.com/WS2cpGn.png" width="500">
+<br><br>
+**Исправлено после дедлайна:**<br>
+- [X] POST /api/session работает корректно - убрать `proxy_cache_methods GET;` в `nginx.conf`
+- [X] Есть кеширование для GET /long_dummy - работает нормально в Nginx, просто не настроено в [Nginx Proxy Manager](https://proxy.foreverfunface.ru)
