@@ -433,6 +433,20 @@ Hi. Accept my congratulations. You were able to launch this app...
 **Завершил дедлайн на:**<br><br>
 <img src="https://i.imgur.com/WS2cpGn.png" width="500">
 <br><br>
+---
+
 **Исправлено после дедлайна:**<br>
 - [X] POST /api/session работает корректно - убрать `proxy_cache_methods GET;` в `nginx.conf`
 - [X] Есть кеширование для GET /long_dummy - работает нормально в Nginx, просто не настроено в [Nginx Proxy Manager](https://proxy.foreverfunface.ru)
+
+**Базовая автоматизация:**<br>
+Команда скачает скрипт, а он уже обновит пакеты, скачает текущий репозиторий и поставит Docker
+```bash
+wget https://raw.githubusercontent.com/d3adwolf/young-yandex-devops/main/deploy.sh && chmod +x deploy.sh && ./deploy.sh
+```
+Запуск docker-compose на трёх нодах
+```bash
+docker compose -f node-01.yaml up -d
+docker compose -f node-02.yaml up -d
+docker compose -f balancer.yaml up -d
+```
