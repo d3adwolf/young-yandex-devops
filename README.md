@@ -436,8 +436,8 @@ Hi. Accept my congratulations. You were able to launch this app...
 ---
 
 **Исправлено после дедлайна:**<br>
-- [X] POST /api/session работает корректно - убрать `proxy_cache_methods GET;` в `nginx.conf`
-- [X] Есть кеширование для GET /long_dummy - работает нормально в Nginx, просто не настроено в [Nginx Proxy Manager](https://proxy.foreverfunface.ru)
+- [X] POST /api/session работает корректно - убрал `proxy_cache_methods GET;` в `nginx.conf`
+- [X] Есть кеширование для GET /long_dummy - работает нормально в Nginx контейнере, но кеширование не настроено в [Nginx Proxy Manager](https://proxy.foreverfunface.ru), потому что там нет его нормальной поддержки
 
 **Базовая автоматизация:**<br>
 Команда скачает скрипт, а он уже обновит пакеты, скачает текущий репозиторий и поставит Docker
