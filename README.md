@@ -337,7 +337,7 @@ CREATE INDEX movies_name_indx ON public.movies ("name");
 CREATE INDEX movies_year_indx ON public.movies ("year" DESC);
 CREATE INDEX sessions_id_indx ON public.sessions (id DESC);
 ```
-- [X] GET /api/session/{id} работает корректно<br>
+- [X] GET /api/session/{id} работает корректно<br><br>
 Проверим на всякий новые индексы
 ```sql
 SELECT indexname, tablename FROM pg_indexes;
