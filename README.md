@@ -16,8 +16,6 @@ Linux proxmox 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:
 Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 x86_64 x86_64 GNU/Linux
 ```
 Доступ к сайтам сервера идет через обратный прокси [Nginx Proxy Manager](https://proxy.foreverfunface.ru)
-> [!NOTE]\
-> Сайт ещё жив на [youngyandex.ru](https://youngyandex.ru/), текущий [конфиг Bingo](https://youngyandex.ru/config), админка [PostgreSQL](https://pgadmin.youngyandex.ru/)
 ### Этап 1
 **Изучение и настройка бинарника:**<br>
 Скачиваем приложение (бинарник), основанный на [Cobra](https://github.com/spf13/cobra)
