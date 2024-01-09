@@ -1,57 +1,66 @@
-## Young Yandex DevOps 2023
-Итоговый проект Young Yandex по направлению DevOps 2023 года. 
-<br><br>
-### Предисловие
+# Young Yandex DevOps 2023
+**Language:** [🇷🇺](https://github.com/d3adwolf/young-yandex-devops/blob/main/README_RU.md) · 🇺🇸
+
+The final project of Young Yandex's DevOps 2023. 
+### Preface
 > [!IMPORTANT]\
-> Из-за работы и учебы пришлось уделить проекту только 4 дня, но, зато все 4 дня сидел non-stop за работой. Хочется уже спать, кушать, отдыхать, как и всем в общем.
-> В 23:55 убрал руки от контейнеров, пойду загружу актуальные конфиги.
-### Этап 0
-**Изначальная инфраструктура:**<br>
-Домашний сервер Dell R510 с [Proxmox VE 8.0.4](https://proxmox.foreverfunface.ru)
+> Due to work and studies I had to devote only 4 days to the project, but all 4 days I sat non-stop at work.
+## Preparatory phase
+### Initial infrastructure
+
+Home server **Dell R510** with [Proxmox VE 8.0.4](https://proxmox.foreverfunface.ru):
 ```bash
 Linux proxmox 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 GNU/Linux
 ```
-Внутри LXC контейнер **yy-test** с ubuntu-23.04-standart_23.04-1_amd64
+Inside the LXC container **yy-test** with **ubuntu-23.04-standart_23.04-1_amd64**:
 ```bash
-Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 x86_64 x86_64 GNU/Linux
+Linux yy-test 6.2.16-19-pve #1 SMP PREEMPT_DYNAMIC PMX 6.2.16-19 (2023-10-24T12:07Z) x86_64 x86_64 x86_64 x86_64 GNU/Linux
 ```
-Доступ к сайтам сервера идет через обратный прокси [Nginx Proxy Manager](https://proxy.foreverfunface.ru)
-### Этап 1
-**Изучение и настройка бинарника:**<br>
-Скачиваем приложение (бинарник), основанный на [Cobra](https://github.com/spf13/cobra)
+The server sites are accessed through the reverse proxy [Nginx Proxy Manager](https://proxy.foreverfunface.ru).
+## Stage 1
+### Learn and customize the binary
+Download the application (binary) based on [Cobra](https://github.com/spf13/cobra):
 ```bash
 wget https://storage.yandexcloud.net/final-homework/bingo
 ```
-Сделаем бинарник исполняемым в любой точке системы, будто мы его поставили через `apt`, создадим пользователя, чтобы соответствовать правильному подходу по ИБ, да и из под root-а он не запустится
+Make the binary executable anywhere in the system, as if we put it through `apt`, create a user to comply with the correct IS approach, and it won't run as root:
 ```bash
 mv bingo /bin/
 chmod 755 /bin/bingo
 adduser user
 usermod -aG sudo user
 ```
-Для запуска сервера нужен конфиг и БД с данными
-<br><br>
-Смотрим расположение конфига
+To start the server you need a config and a database with data.
+
+
+See the location of the config:
 ```bash
 strace bingo print_current_config
 openat(AT_FDCWD, "/opt/bingo/config.yaml", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
 ```
-Для начала узнаем стандартный конфиг
+Let's start by recognizing the default config:
 ```bash
 bingo print_default_config
 ```
-Создадим необходимую папку и конфиг
+Let's create the necessary folder and config:
 ```bash
 mkdir /opt/bingo/
 vi /opt/bingo/config.yaml
 ```
-Указываем свою почту: `f3.d3ad.wolf@yandex.ru`, а актуальный конфиг я загрузил в [публичный репозиторий](https://github.com/d3adwolf/young-yandex-public)
-- [X] В конфигурации — правильный email<br><br>
+Specify your email: `f3.d3ad.wolf@yandex.ru`, and I uploaded the actual config to [public repository](https://github.com/d3adwolf/young-yandex-public):
+- [X] In the config, the correct email
 
-**Теперь ставим PostreSQL:**<br>
-Для удобства запустим БД сразу в Docker, установим его по инструкции:<br>
-[Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/) и [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/)<br><br>
-Для этого я нашел в интернете готовый docker-compose.yaml для PostreSQL,<br>на тот момент изменять его не нужно, часть yaml-файла примерно такая
+
+### Now let's install PostreSQL.
+
+
+For convenience, let's run the database directly in Docker, install it according to the instructions:
+
+
+[Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/) and [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
+
+
+For this I found a ready-made docker-compose.yaml for PostreSQL on the internet, no need to modify it at that point, the part of the yaml file is like this:
 ```yaml
 postgres:
     container_name: postgres
@@ -69,55 +78,59 @@ volumes:
   postgres:
     driver: local
 ```
-Изменения в custompostgresql.conf по сравнению с дефолтным
+Changes in custompostgresql.conf compared to the default:
 ```bash
 listen_addresses = '*'
 log_timezone = 'Europe/Moscow'
 ```
-Запускаем через `docker compose up -d`, добавляем тестовые данные в БД `bingo prepare_db`.
-<br><br>
-### Этап 2
-**Запуск бинарника:**<br>
-Пробуем запустить сервер
+Run via `docker compose up -d`, add test data to the database **bingo prepare_db**.
+
+
+## Stage 2
+### Start the binary
+Try to start the server:
 ```bash
 bingo run_server
 ```
-Видим ошибку с логами, делаем strace
+We see an error with logs, do strace:
 ```bash
 strace bingo run_server
 ```
-Находим несуществующий путь и создаем папку
+Find a path that doesn't exist and create a folder:
 ```bash
 mkdir -p /opt/bongo/logs/6561f4ba98/
 touch /opt/bongo/logs/6561f4ba98/main.log
 chmod 777 /opt/bongo/logs/6561f4ba98/main.log
 ```
-Пробуем запустить
+Try running:
 ```bash
 bingo run_server
 ```
-- [X] Запуск приложения<br>
-Узнаем какой порт прослушивает Bingo после успешного его запуска
+- [X] Start the application
+
+
+Find out what port Bingo is listening on after successful startup:
 ```bash
 ss -ltnp
-LISTEN    0    128    *:19225    *:*    users:(("bingo",pid=6849,fd=9))
+LISTEN 0 128 *:19225 *:* users:((("bingo",pid=6849,fd=9)))
 ```
-Сделаем тест текущего приложения
-- [X] GET /api/movie работает корректно
-- [X] GET /api/customer работает корректно
-- [X] GET /api/session работает корректно
-<br><br>
-### Этап 3
-**Упаковка сервера в контейнер:**<br>
-Создадим Dockerfile
+Let's test the current application:
+- [X] GET /api/movie works correctly
+- [X] GET /api/customer works correctly
+- [X] GET /api/session works correctly
+## Stage 3
+### Pack the server into a container
+Create a Dockerfile:
 ```bash
 vim Dockerfile
 ```
-Берем в основу Ubuntu, скачиваем в неё Bingo и запускаем
+Taking **Ubuntu** as a base, download Bingo and run it:
 ```Dockerfile
 FROM ubuntu
 
+
 WORKDIR /opt/bingo
+
 
 RUN apt update && \
     apt upgrade -y && \
@@ -130,100 +143,99 @@ RUN apt update && \
     adduser user --shell /bin/bash && \
     usermod -aG sudo user && \
     mkdir -p /opt/bongo/logs/6561f4ba98/ && \
-    touch /opt/bongo/logs/6561f4ba98/main.log && \
+    touch /opt/bongo/logs/6561f4ba98/main.log&\
     chmod 777 -R /opt/bongo/
+
 
 USER user
 
+
 CMD ["bingo", "run_server"]
 ```
-Собираем build
+Build build:
 ```bash
 docker build --no-cache -t <USER>/bingo:<TAG> .
 ```
-Логинемся в Docker Hub
+Logging into Docker Hub:
 ```bash
 docker login
 ```
-Пушим актуальную версию
+Push the current version:
 ```bash
 docker push <USER>/bingo:<TAG>
 ```
-Всё, рабочий образ лежит в [репозитории](https://hub.docker.com/r/d3adwolf/bingo) DockerHub'а
-<br><br>
-### Этап 4
-**Упаковка связанной инфраструктуры в docker-compose:**<br>
-Создадим основной docker-compose
+That's it, the working image is in DockerHub's [repository](https://hub.docker.com/r/d3adwolf/bingo).
+## Stage 4
+### Pack the linked infrastructure into docker-compose
+Let's create a basic docker-compose:
 ```bash
 vim docker-compose.yaml
 ```
-Запускать docker-compose можно командой
+You can run docker-compose with the command:
 ```bash
 docker compose up -d
 ```
-Но у нас две ноды, поэтому делаем два разных файла
+But we have two nodes, so we do two different files:
 ```bash
 mv docker-compose.yaml node-01.yaml
 cp node-01.yaml node-02.yaml
 ```
-Запускаем docker-compose на первой и потом на второй ноде
+Run docker-compose on the first node and then on the second node:
 ```bash
 docker compose -f node-<NUMBER>.yaml up -d
 ```
-Выключать контейнеры через
+Shut down containers via:
 ```bash
 docker compose -f node-<NUMBER>.yaml down
 ```
-В каждом docker-compose, где есть поддержка `timezone` и `locale`, укажем наш регион для правильного времени в логах
+In every docker-compose that has support for `timezone` and `locale`, let's specify our region for the correct time in the logs:
 ```yaml
 environment:
       - LANG=C.UTF-8
       - TZ=Europe/Moscow
 ```
-`LANG=C.UTF-8` выдает 24-часовой формат, а `TZ=Europe/Moscow` наше время
-<br><br>
-### Этап 5
-**Настройка балансера:**<br>
-Создадим docker-compose для Nginx ноды
+``LANG=C.UTF-8` gives 24-hour format, and ``TZ=Europe/Moscow`` gives our time.
+
+## Stage 5
+### Configuring the balancer
+Let's create a docker-compose for the Nginx node:
 ```bash
 vim balancer.yaml
 ```
-Создадим конфиг для Nginx
+Create a config for Nginx:
 ```bash
 vim nginx.conf
 ```
-Здесь мы указываем две ноды для балансера
+Here we specify two nodes for the balancer:
 ```nginx
 upstream backend {
         server 192.168.0.66:19225;
         server 192.168.0.67:19225;
     }
 ```
-Указываем виртуальный сайт для трафика, в нем как раз работает балансер, не забываем про proxy_next_upstream, он перекинет трафик на другую ноду, если одна нода упадёт
+Specify a virtual site for traffic, it's where the balancer works, don't forget about proxy_next_upstream, it will forward traffic to another node if one node goes down:
 ```nginx
 location / {
             proxy_pass http://backend;
 	    proxy_next_upstream error timeout http_502 http_504;
         }
 ```
-- [X] GET /db_dummy соотвествует SLA
-- [X] GET /api/movie/{id} работает корректно
-- [X] GET /api/customer/{id} работает корректно
-- [X] GET /api/session/{id} работает корректно
-- [X] Отказоустойчивость 1
-- [X] Отказоустойчивость 2
-- [X] Отказоустойчивость 3
-<br><br>
-### Этап 6
-**Настройка домена и HTTPS:**<br>
-1. Оформим домен на [REG.ru](https://www.reg.ru/), пропишем там `A` и `AAAA` записи
-2. 	a. Я зайду на свой продовый контейнер [Nginx Proxy Manager](https://proxy.foreverfunface.ru/) и добавлю туда домен с REG.ru, там же подключу SSL сертификаты через Let's Encrypt<br>
-	b. Либо настроить в Nginx SSL через CertBot
-- [X] Есть https
-<br><br>
-### Финальный этап
-**Запуск полной инфраструктуры:**
-<br>Структура файлов на каждой ноде
+- [X] GET /db_dummy complies with SLA
+- [X] GET /api/movie/{id} works correctly
+- [X] GET /api/customer/{id} works correctly
+- [X] GET /api/session/{id} works correctly
+- [X] Fault tolerance 1
+- [X] Fault tolerance 2
+- [X] Fault tolerance 3
+## Stage 6
+### Configuring Domain and HTTPS
+1. Let's register the domain on [REG.ru](https://www.reg.ru/), write there `A` and `AAAA` records
+2. 	a. I will go to my prod container [Nginx Proxy Manager](https://proxy.foreverfunface.ru/) and add the domain from REG.ru there, I will also connect SSL certificates via Let's Encrypt<br>
+	b. Or configure SSL in Nginx via CertBot
+- [X] There's https
+## Final stage
+### Running the full infrastructure
+File structure on each node:
 ```bash
 user@192.168.0.66
 |-- custompostgresql.conf
@@ -239,23 +251,22 @@ user@192.168.0.68
 |-- nginx.conf
 `-- nginx.yaml
 ```
-Запуск контейнеров через
+Running containers through:
 ```bash
 dokcer compose -f <NAME>.yaml up -d
 ```
-Скачать необходимые файлы можно с этого репозитория через
-```
+Download the necessary files from this repository via:
+```bash
 wget <URL>
 ```
-или
-```
+or
+```bash
 git clone
 ```
-Правильнее будет вариант с Git'ом
-<br><br>
-### Разное
-**Нахождение мною всех кодов:**<br>
-При любом успешном запуске сервера:
+The Git option would be more correct.
+## Miscellaneous
+### Finding all codes by me
+On any successful server startup:
 ```bash
 bingo run_server
 ```
@@ -264,10 +275,10 @@ My congratulations.
 You were able to start the server.
 Here's a secret code that confirms that you did it.
 --------------------------------------------------
-code:         yoohoo_server_launched
+code: yoohoo_server_launched
 --------------------------------------------------
 ```
-При запросе корневой страницы сайта (`/`):
+When requesting the root page of the site (`/`):
 ```bash
 curl http://ip:19225
 ```
@@ -276,12 +287,12 @@ Hi. Accept my congratulations. You were able to launch this app.
 In the text of the task, you were given a list of urls and requirements for their work.
 Get on with it. You can do it, you'll do it.
 --------------------------------------------------
-code:         index_page_is_awesome
+code: index_page_is_awesome
 --------------------------------------------------
 ```
-- [X] Поход в корень
-<br><br>
-Да, я пытался найти в исходниках пасхалку, советы, но нашел код, который можно получить, заблочив Google домен:
+- [X] Root hike
+
+Yeah, I was trying to find a passphrase in the source code, tips, but I found the code you can get by blocking the google domain:
 ```bash
 xxd bingo
 ```
@@ -300,17 +311,17 @@ xxd bingo
 0085bba0: 2d2d 2d2d 2d2d 2d2d 2d2d 2d2d 2d2d 2d2d  ----------------
 0085bbb0: 2d2d 2d2d 2d0a 2020 2020 3c68 746d 6c3e  -----.    <html>
 ```
-Либо идём по правильному пути:
+Automatically or we're going the right way:
 ```bash
 netstat -anp | grep bingo
-tcp        0      1 172.25.251.86:42506     8.8.8.8:80              SYN_SENT    74648/bingo
+tcp 0 1 172.25.251.86:42506 8.8.8.8.8:80 SYN_SENT 74648/bingo
 ```
-Эту команду выполняем вне контейнера, а в compose указываем сеть `host`, чтобы `iptables` хоста работал на сам контейнер:
+Run this command outside the container, and specify the `host` network in compose so that the `iptables` of the host will work on the container itself:
 ```bash
-iptables -t filter -A OUTPUT -d 8.8.8.8/32 -j REJECT
+iptables -t filter -A OUTPUT -d 8.8.8.8.8/32 -j REJECT
 ```
-- [X] Гугл забанен 😄
-<br><br>
+- [X] Google's banned 😄
+- [X] Accelerated startfigure nodes over SSH via Ansible
 ```
 Congratulations.
 You were able to figure out why
@@ -320,14 +331,15 @@ Here's a secret code that confirms that you did it.
 code:         google_dns_is_not_http
 --------------------------------------------------
 ```
-- [X] Ускорен старт
-<br><br>
-**Оптимизация SQL-запросов:**<br>
-Воспользоваться можно как и SQL-клиентами, так и [pgadmin4](https://pgadmin.youngyandex.ru/)<br>
-Логин: `admin@admin.com`<br>
-Пароль: `root`
 
-Построим индексы для сложного запроса на /api/session
+### Optimization of SQL queries
+You can use both SQL clients and [pgadmin4](https://www.pgadmin.org/download/pgadmin-4-container/).
+
+Login: `admin@admin.com`
+
+Password: `root`
+
+Let's build indexes for a complex query on `/api/session`:
 ```sql
 CREATE INDEX customers_id_indx ON public.customers (id);
 CREATE INDEX movies_id_indx ON public.movies (id DESC);
@@ -335,15 +347,15 @@ CREATE INDEX movies_name_indx ON public.movies ("name");
 CREATE INDEX movies_year_indx ON public.movies ("year" DESC);
 CREATE INDEX sessions_id_indx ON public.sessions (id DESC);
 ```
-- [X] GET /api/session/{id} работает корректно<br><br>
-Проверим на всякий новые индексы
+- [X] GET /api/session/{id} works correctly
+Let's check the new indexes just in case
 ```sql
 SELECT indexname, tablename FROM pg_indexes;
 ```
-Проверили, отлично
-<br><br>
-**Оптимизация SQL-сервера:**<br>
-Рекомендуемый конфиг взят с [PGtune](https://pgtune.leopard.in.ua/) для конкретно моих LXC контейнеров
+Checked, great.
+
+### SQL Server Optimization
+The recommended config is taken from [PGtune](https://pgtune.leopard.in.ua/) for my LXC containers specifically:
 ```conf
 # DB Version: 16
 # OS Type: linux
@@ -351,6 +363,7 @@ SELECT indexname, tablename FROM pg_indexes;
 # Total Memory (RAM): 8 GB
 # CPUs num: 16
 # Data Storage: ssd
+
 
 max_connections = 200
 shared_buffers = 2GB
@@ -370,9 +383,8 @@ max_parallel_workers_per_gather = 4
 max_parallel_workers = 16
 max_parallel_maintenance_workers = 4
 ```
-Пока результатов в тесте это не принесло, нужно смотреть скорость выполнения SQL-скриптов, но это уже после дедлайн, а на момент дедлайна тестировал на обычном конфиге без тюна
-<br><br>
-**Разборка docker-compose решений:**<br>
+So far it didn't bring any results in the test, we need to see the speed of SQL-scripts execution, but this is after the deadline, and at the time of the deadline I tested on a normal config without tuning.
+### Docker-compose solutions disassembly
 ```yaml
 healthcheck:
       test: ["CMD", "curl", "-s", "-f", "http://192.168.0.67:19225/ping"]
@@ -381,70 +393,66 @@ healthcheck:
       timeout: 3s
       interval: 4s
 ```
-Не каждое падение приложения вызывает `exit 1`, а вот `/ping` в случае проблем пишет `I feel die` вместо `pong`, именно поэтому лучше чекать `/ping`
-<br>
+Not every application crash causes `exit 1`, but `/ping` will write `I feel die` instead of `pong` in case of problems, that's why it's better to check `/ping`.
 ```yaml
 resources:
       limits:
         memory: 1024M
 ```
-Я видел, что иногда выполняется переполнение памяти, особенно без nginx-сервера, поэтому поставил лимит, после которого контейнер уходит в ребут
-<br>
+I saw that sometimes memory overflow is performed, especially without nginx-server, so I set a limit after which the container goes into reboot.
 ```yaml
 environment:
       - PGUSER=postgres
 network_mode: "host"
 ```
-Чтобы исправить `psql: FATAL:  role "root" does not exist`, и БД была доступа снаружи
-<br>
+To fix `psql: FATAL: role "root" does not exist`, and the database was accessed from outside.
 ```yaml
 autoheal:
       container_name: autoheal
       image: willfarrell/autoheal
 ```
-Чтобы контейнеры перезапускались после `Unhealthy`, ибо это фича Docker Swarm'а
-<br><br>
-**Задачи под звездочкой:**<br>
+To make containers restart after ``Unhealthy``, for this is a Docker Swarm feature.
+### Tasks under the asterisk
 ```bash
 curl http://youngyandex.ru
 ```
 ```
 Hi. Accept my congratulations. You were able to launch this app...
 ```
-- [X] HTTP без редиректа на HTTPS - по идее работает, но [Nginx Proxy Manager](https://proxy.foreverfunface.ru/) не радует стабильной работой
-<br>
+- [X] HTTP without redirect to HTTPS - supposedly works, but [Nginx Proxy Manager](https://proxy.foreverfunface.ru/) doesn't work stably
 
-**Чего не было сделано и почему:**<br>
-- [ ] POST /api/session работает корректно - перестал срабатывать за час до дедлайна, вероятно ошибка в `nginx.conf`
-- [ ] Есть кеширование для GET /long_dummy - вероятно ошибка в `nginx.conf`
-- [ ] HTTP3 - не работает в [Nginx Proxy Manager](https://proxy.foreverfunface.ru), надо было сразу настраивать Nginx
-- [ ] Мониторинг RPS и ошибок - есть мониторинг LXC контейнеров через [Grafana](https://grafana.foreverfunface.ru/), но отдельный на Nginx + PostgreSQL не успел
-- [ ] Автоматизировать развёртывание - идеальное видение:
-<br>      a. Развертывание LXC в Proxmox через Terraform
-<br>      b. Первоначальная настройка LXC через cloud-init
-<br>      c. GitLab CI/CD для билда Docker Image
-<br>      d. Мониторинг LXC, Docker, Nginx через node_exporter + Prometheus + Grafana
-<br>      e. Скачивание Bash скрипта через Wget, который выполнит Terraform и Docker Compose
-<br>      f. Автоматическая настройка нод по SSH через Ansible
-<br><br>
 
-**Завершил дедлайн на:**<br><br>
+### What was not done and why
+- [ ] POST /api/session works correctly - stopped working an hour before deadline, probably a bug in `nginx.conf`
+- [ ] There is caching for GET /long_dummy - probably a bug in `nginx.conf`
+- [ ] HTTP3 - doesn't work in [Nginx Proxy Manager](https://proxy.foreverfunface.ru), I should have configured Nginx right away
+- [ ] RPS and error monitoring - there is monitoring of LXC containers via [Grafana](https://grafana.foreverfunface.ru/), but separate one on Nginx + PostgreSQL didn't have time for it
+- [ ] Automate deployment - ideal vision:
+<br> a. Deploying LXC in Proxmox via Terraform
+<br> b. Initial configuration of the LXC via cloud-init
+<br> c. GitLab CI/CD for the Docker Image build
+<br> d. Monitoring LXC, Docker, Nginx via node_exporter + Prometheus + Grafana
+<br> e. Downloading a Bash script via Wget that will execute Terraform and Docker Compose
+<br> f. Automatically configure nodes over SSH via Ansible
+
+
+### Completed the deadline with these results
 <img src="https://i.imgur.com/WS2cpGn.png" width="500">
-<br><br>
+
+
 ---
-
-**Исправлено после дедлайна:**<br>
-- [X] POST /api/session работает корректно - убрал `proxy_cache_methods GET;` в `nginx.conf`
-- [X] Есть кеширование для GET /long_dummy - работает нормально в Nginx контейнере, но кеширование не настроено в [Nginx Proxy Manager](https://proxy.foreverfunface.ru), потому что там нет его нормальной поддержки
-
-**Базовая автоматизация:**<br>
-Команда скачает скрипт, а он уже обновит пакеты, скачает текущий репозиторий и поставит Docker
+### Fixed after deadline.
+- [X] POST /api/session works correctly - removed `proxy_cache_methods GET;` in `nginx.conf`
+- [X] There is caching for GET /long_dummy - works fine in Nginx container, but caching is not configured in [Nginx Proxy Manager](https://proxy.foreverfunface.ru) because it is not properly supported there.
+### Basic Automation
+The team will download the script and it will already update the packages, download the current repository and install Docker:
 ```bash
 wget https://raw.githubusercontent.com/d3adwolf/young-yandex-devops/main/deploy.sh && chmod +x deploy.sh && ./deploy.sh
 ```
-Запуск docker-compose на трёх нодах
+Running docker-compose on three nodes:
 ```bash
 docker compose -f node-01.yaml up -d
 docker compose -f node-02.yaml up -d
 docker compose -f balancer.yaml up -d
 ```
+That's all for now, thanks for reading.
